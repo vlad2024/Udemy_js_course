@@ -2,6 +2,7 @@
 const arr2 = [2, 5, 2, 1, 3, 6, 3];
 function compareNum(a,b){ // эту функцию надо передать в метод сорт и оно нормасно отсортирует
     return a - b; // это какая-то магияXD
+    
 }
 arr2.sort(compareNum); // сортонуло наш массив
 console.log(arr2);
