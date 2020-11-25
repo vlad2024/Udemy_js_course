@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script defer src = "script.js"></script> <!--defer говорит что когда загружается html страница, чтобы наш скрипт
+     загружался паралельно в фоновом режиме, скрпит с таким атрибутом всегда выпоняется когда наше DOM дерево готово -->
+    <!--если вместо defer поставить async , то 1) страница у нас не ждет асинхронных скриптов, 2) события DOMContentLoaded
+    и асинхронные скрипты неждут друг друга, то есть он так же загружается в фоновом режиме, но при этом запускается
+    как только он был загружен-->
+    <div>First message</div>
+    <div>Hello</div>
+</body>
+</html>
