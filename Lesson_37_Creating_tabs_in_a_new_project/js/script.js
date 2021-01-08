@@ -96,8 +96,37 @@ document.addEventListener("DOMContentLoaded", () =>{
 
     setClock(".timer", deadLine);
 
+    // Modal
 
+    const modalTrigger = document.querySelectorAll("[data-modal]"); // для того чтобы получить атрибут надо еще
+    // квадратные скобочки
+    const modal = document.querySelector(".modal");
+    const modalCloseBtn = document.querySelector("[data-close]");
 
+    modalTrigger.forEach(btn =>{
+        btn.addEventListener("click", ()=>{ // обработчик на открытие модального окна в оприделенной кнопки
+            modal.classList.toggle("show");
+            document.body.style.overflow = "hidden"; // чтобы нельзя было скролить после открытия модального
+        });
+    });
+
+    function closeModal(){
+        modal.classList.toggle("show");
+        document.body.style.overflow = ""; // чтобы можно было скролить после закрытия
+    }
+    modalCloseBtn.addEventListener("click", closeModal); // тут мы функцию передаем, а не вызываем
+
+    modal.addEventListener("click", (event) => {
+        if(event.target === modal){
+           closeModal(); // а тут уже вызываем, ибо нам надо её выполнить после условия
+        }
+    });
+    
+    document.addEventListener("keydown", (e)=>{ // при клике на ескейп будет закрываться
+        if(e.code === "Escape" && modal.classList.contains("show")){ 
+            closeModal();
+        }
+    });
 
 
 
