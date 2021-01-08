@@ -103,12 +103,15 @@ document.addEventListener("DOMContentLoaded", () =>{
     const modal = document.querySelector(".modal");
     const modalCloseBtn = document.querySelector("[data-close]");
 
+    function openModal(){
+        modal.classList.toggle("show");
+        document.body.style.overflow = "hidden"; // чтобы нельзя было скролить после открытия модального
+        clearInterval(modalTimerId);
+    }
+
     modalTrigger.forEach(btn =>{
-        btn.addEventListener("click", ()=>{ // обработчик на открытие модального окна в оприделенной кнопки
-            modal.classList.toggle("show");
-            document.body.style.overflow = "hidden"; // чтобы нельзя было скролить после открытия модального
-        });
-    });
+        btn.addEventListener("click", openModal);
+    });    
 
     function closeModal(){
         modal.classList.toggle("show");
@@ -129,5 +132,15 @@ document.addEventListener("DOMContentLoaded", () =>{
     });
 
 
+    const modalTimerId = setTimeout(openModal, 3000); // устанавливаем таймер на открытие модального окна
 
+    function ShowModalByScroll(){
+        if(window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight){
+            openModal();
+            window.removeEventListener("scroll", ShowModalByScroll);
+        } // window.pageYOffset - прокрученая часть, второй параметр - часть которую я вижу, 3тий - больше
+        // либо ровна всему scrollHeight то мы долистали до конца
+    }
+
+    window.addEventListener("scroll", ShowModalByScroll);   
 });
