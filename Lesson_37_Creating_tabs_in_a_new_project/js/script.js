@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () =>{
     });
 
 
-    //const modalTimerId = setTimeout(openModal, 3000); // устанавливаем таймер на открытие модального окна
+    const modalTimerId = setTimeout(openModal, 3000); // устанавливаем таймер на открытие модального окна
 
     function ShowModalByScroll(){
         if(window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight){
@@ -218,5 +218,78 @@ document.addEventListener("DOMContentLoaded", () =>{
         ".menu .container",
         "menu__item"
     ).render();
+
+
+    // Forms
+
+    const forms = document.querySelectorAll("form");
+
+        const message = { // будет выводится пользователю при отправке формы
+            loading: "загрузка",
+            success: "Спасибо, скоро мы с вами свяжемся",
+            failure: "Что-то пошло не так..."
+        };
+        
+        forms.forEach(item =>{
+            postData(item);
+        });
+
+    function postData(form){
+        form.addEventListener("submit", (e) =>{
+            e.preventDefault(); // отменили стандартное поведение формы, то есть перезагрузка страници
+
+            let statusMessage = document.createElement("div");// создаем элемент в который закинем message
+            statusMessage.classList.add("status"); // по приколу добавили класс статус, если он реализован в css
+            statusMessage.textContent = message.loading;
+            form.append(statusMessage); // выводим сообщение о текущем результате обработки
+
+            const request = new XMLHttpRequest(); 
+            request.open("POST", "server.php");
+            // теперь настроем заголовки, которые будут говорить, что именно приходит(когда мы используем
+            // связку XMLHttpRequest() и formData нам заголовок устанавливать не нужно, он автоматом ставится)
+            //request.setRequestHeader("Content-type", "multipart/form-data");
+            // -*-Сейчас будет пример если на сервер нужно отправлять данные в JSON формате
+            // -*- request.setRequestHeader("Content-type", "application/json");
+
+            // есть простой способ подготовить данные отправки из формы это использовать объект FormData(),
+            // не обезательно использовать JSON
+            // закидываем в formatData данные с формы
+            const formData = new FormData(form); // запомни, когда ты верстаешь какие-то инпуты и тд и ты 
+            // знаешь, что эти данные будут идти на сервер нужно всегда указывать атрибут name
+
+            /* -*- мы переберем все что внитри нашего formData и поместим в наш объект object
+            const object={};
+
+            formData.forEach(function(value,key){
+                 object[key] = value;
+            });
+
+            const json = JSON.stringify(object); превращаем обычныый объект в JSON
+            request.send(json);
+            php нативно не умеет работать с форматом данных json, чаще всего такие данные будем отправлять
+            на сервера с использование NodeJs
+            */
+
+            request.send(formData); // уже отправляем эту formData которую мы сформировали на основании формы, 
+                                    // которая была зополнена
+            
+           request.addEventListener("load", ()=>{ // обращаемся к риквесту и говорим что мы отслеживаем load
+            // то есть конечную загрузку нашего запроса
+                if(request.status === 200){
+                    console.log(request.response);
+                    statusMessage.textContent = message.success;
+                    form.reset(); // после отправки очистили форму
+                    setTimeout(()=>{
+                        statusMessage.remove(); // через 2с удаляем наш див с оповещением
+                    },2000);
+                }else{
+                    statusMessage.textContent = message.failure;
+                }
+
+           });                       
+
+             
+        });
+    }
 
 });
