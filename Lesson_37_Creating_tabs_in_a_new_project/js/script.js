@@ -103,7 +103,8 @@ document.addEventListener("DOMContentLoaded", () =>{
     const modal = document.querySelector(".modal");
 
     function openModal(){
-        modal.classList.toggle("show");
+        modal.classList.add("show");
+        modal.classList.remove("hide");
         document.body.style.overflow = "hidden"; // чтобы нельзя было скролить после открытия модального
         clearInterval(modalTimerId);
     }
@@ -247,50 +248,37 @@ document.addEventListener("DOMContentLoaded", () =>{
             form.insertAdjacentElement("afterend", statusMessage);// с помощью этого метода мы аппендим наш
             // спинер не в саму форму, а после неё
 
-            const request = new XMLHttpRequest(); 
-            request.open("POST", "server.php");
-            // теперь настроем заголовки, которые будут говорить, что именно приходит(когда мы используем
-            // связку XMLHttpRequest() и formData нам заголовок устанавливать не нужно, он автоматом ставится)
-            //request.setRequestHeader("Content-type", "multipart/form-data");
-            // -*-Сейчас будет пример если на сервер нужно отправлять данные в JSON формате
-            // -*- request.setRequestHeader("Content-type", "application/json");
+            const formData = new FormData(form); // закидываем в formatData данные с формы
 
-            // есть простой способ подготовить данные отправки из формы это использовать объект FormData(),
-            // не обезательно использовать JSON
-            // закидываем в formatData данные с формы
-            const formData = new FormData(form); // запомни, когда ты верстаешь какие-то инпуты и тд и ты 
-            // знаешь, что эти данные будут идти на сервер нужно всегда указывать атрибут name
-
-            /* -*- мы переберем все что внитри нашего formData и поместим в наш объект object
-            const object={};
-
-            formData.forEach(function(value,key){
-                 object[key] = value;
+            const object = {}; 
+            formData.forEach(function(value, key){ // перебрали formData в обычный объект
+                object[key] = value;
             });
 
-            const json = JSON.stringify(object); превращаем обычныый объект в JSON
-            request.send(json);
-            php нативно не умеет работать с форматом данных json, чаще всего такие данные будем отправлять
-            на сервера с использование NodeJs
-            */
+            const json = JSON.stringify(object); // сделали объект json формата
 
-            request.send(formData); // уже отправляем эту formData которую мы сформировали на основании формы, 
-                                    // которая была зополнена
-            
-           request.addEventListener("load", ()=>{ // обращаемся к риквесту и говорим что мы отслеживаем load
-            // то есть конечную загрузку нашего запроса
-                if(request.status === 200){
-                    console.log(request.response); // выводим в консоль чтобы пониматть что данные пошли на серв
+           fetch("server.php", {
+            method: "POST", // метод которым будем обращаться к серверу
+            headers: { // заголовки, какой контент мы отправляем
+                'Content-type': 'applocation/json'
+            },
+            body: json // объект который будем посылать на сервер
+            }).then(data =>{
+                data.text(); // если все хорошо пошло,ебаули наши данные в текстовый формат 
+            }).then(data=>{
+                    console.log(data); // выводим в консоль чтобы пониматть что данные пошли на серв
                     showThanksModal(message.success);
-                    form.reset(); // после отправки очистили форму
                     statusMessage.remove(); // удаляем спинер
-                }else{
-                    showThanksModal(message.failure);
-                }
+            }).catch(()=>{
+                showThanksModal(message.failure);
+            }).finaly(()=>{ // так как в любом случаем нам надо очищать форму обратно, мы делаем это в finaly
+                form.reset(); // после отправки очистили форму
+            });
+            
+            // Если внутри фетча профис попадает на ошибку которая связана с http протоколом типа 404, 502 
+            // или мы сделали ошибку в названии url b тд, это для него не считается ошибкой, он нормально 
+            // выполнит при это resulve, самое главное для fetch это то что он вообще смог сделать этот запрос
 
-           });                       
-
-             
         });
     }
 
@@ -317,4 +305,37 @@ document.addEventListener("DOMContentLoaded", () =>{
         },4000);
     }
 
+
+    
+    /*
+    // так работать на много легче, а XMLHttpRequest это уже устаревший формат
+    fetch('https://jsonplaceholder.typicode.com/posts',{ // а как делать другие виды запросов то есть POST
+    // либо Put запросы, для этого url отсаётся тот же, ставим запятую и помещаем туда сюда объект с настройками
+    // который мы будем задавать, он содержит много различных свойств, но самыми обязательными являются только
+    // method и body которое мы будем отправлять
+        method: "POST",
+        body: JSON.stringify({name: "Alex"}), // создали объект который превратится в JSON формат(stringify),
+        // и мы с вами отправим его при помощи fetch-а
+        headers: { // желательно добавлять еще заголовки которые будут оприделать какой контент мы отправляем
+            "Content-type": "application/json"
+        }  
+    })
+    .then((response) => { // мы получаем какойто response - ответ от сервера в формате json
+    return response.json(); // для того чтобы использовать этот json объект у себя на клиенте, нам надо
+    // трансформировать в обычный объект, для этого мы использовали в коде json.Parse, но в Fetch уже есть
+    // встроенная возможность быстро это сделать, для этого берем ответ от сервера и вызываем метод json(), и
+    // эта команда возвращает промис, для того чтобы построить дальше цепочку
+    })  
+    .then((data) => { // если там оно нормально все отработает мы получаем обычный объект 
+    console.log(data); // и просто используем в консоли
+    }); 
+    */
 });
+
+// API - интерфейс програмного обеспечения, или приложения(Простыми словами это набор данных и возможностей
+// которые предоставляют нам какое-то решение)
+// Сегодня будем разбирать такую технологию как fach API - современная и крайнеудобная технология которая 
+// позволяет общаться с сервером и она построена на промисах
+
+
+
