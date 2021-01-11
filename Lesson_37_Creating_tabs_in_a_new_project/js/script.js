@@ -101,7 +101,6 @@ document.addEventListener("DOMContentLoaded", () =>{
     const modalTrigger = document.querySelectorAll("[data-modal]"); // для того чтобы получить атрибут надо еще
     // квадратные скобочки
     const modal = document.querySelector(".modal");
-    const modalCloseBtn = document.querySelector("[data-close]");
 
     function openModal(){
         modal.classList.toggle("show");
@@ -117,10 +116,10 @@ document.addEventListener("DOMContentLoaded", () =>{
         modal.classList.toggle("show");
         document.body.style.overflow = ""; // чтобы можно было скролить после закрытия
     }
-    modalCloseBtn.addEventListener("click", closeModal); // тут мы функцию передаем, а не вызываем
+    
 
     modal.addEventListener("click", (event) => {
-        if(event.target === modal){
+        if(event.target === modal || event.target.getAttribute("data-close") == ""){
            closeModal(); // а тут уже вызываем, ибо нам надо её выполнить после условия
         }
     });
@@ -225,23 +224,28 @@ document.addEventListener("DOMContentLoaded", () =>{
     const forms = document.querySelectorAll("form");
 
         const message = { // будет выводится пользователю при отправке формы
-            loading: "загрузка",
+            loading: "img/form/spinner.svg", // теперь будет выводится не слово загрузка а картинка
             success: "Спасибо, скоро мы с вами свяжемся",
             failure: "Что-то пошло не так..."
         };
         
-        forms.forEach(item =>{
+        forms.forEach(item =>{ // перебираем все формы и вызываем на каждой функцию постДата
             postData(item);
         });
 
     function postData(form){
-        form.addEventListener("submit", (e) =>{
+        form.addEventListener("submit", (e) =>{ // submit - обработчик на отправление формы
             e.preventDefault(); // отменили стандартное поведение формы, то есть перезагрузка страници
 
-            let statusMessage = document.createElement("div");// создаем элемент в который закинем message
-            statusMessage.classList.add("status"); // по приколу добавили класс статус, если он реализован в css
-            statusMessage.textContent = message.loading;
-            form.append(statusMessage); // выводим сообщение о текущем результате обработки
+            let statusMessage = document.createElement("img");// создаем элемент в который закинем message
+            statusMessage.src = message.loading;
+            statusMessage.style.cssText = ` 
+                display: block;
+                margin: 0, auto;
+            `; // сделали чтобы картинка блыка блочной и сделали её по средине
+            //form.append(statusMessage); // выводим сообщение о текущем результате обработки
+            form.insertAdjacentElement("afterend", statusMessage);// с помощью этого метода мы аппендим наш
+            // спинер не в саму форму, а после неё
 
             const request = new XMLHttpRequest(); 
             request.open("POST", "server.php");
@@ -276,20 +280,41 @@ document.addEventListener("DOMContentLoaded", () =>{
            request.addEventListener("load", ()=>{ // обращаемся к риквесту и говорим что мы отслеживаем load
             // то есть конечную загрузку нашего запроса
                 if(request.status === 200){
-                    console.log(request.response);
-                    statusMessage.textContent = message.success;
+                    console.log(request.response); // выводим в консоль чтобы пониматть что данные пошли на серв
+                    showThanksModal(message.success);
                     form.reset(); // после отправки очистили форму
-                    setTimeout(()=>{
-                        statusMessage.remove(); // через 2с удаляем наш див с оповещением
-                    },2000);
+                    statusMessage.remove(); // удаляем спинер
                 }else{
-                    statusMessage.textContent = message.failure;
+                    showThanksModal(message.failure);
                 }
 
            });                       
 
              
         });
+    }
+
+    function showThanksModal(message){
+        const prevModalDialog = document.querySelector(".modal__dialog");
+        prevModalDialog.classList.add("hide"); // скрыли предыдущую форму отправки
+        openModal(); // функция отвечает за открытие модального окна(создали её чуть выше)
+
+        const thanksModal = document.createElement("div");
+        thanksModal.classList.add("modal__dialog");
+        thanksModal.innerHTML = `
+            <div class = "modal__content">
+                <div class = "modal__close" data-close>x</div>
+                <div class= "modal__title">${message}</div>
+            </div>
+        `; // в нашем модальном окне теперь выводится что спасибо и тд...
+
+        document.querySelector(".modal").append(thanksModal); // закидываем в наше модальное окно наш элемент
+        setTimeout(()=>{ // через 4 секунды чтобы убералось наше сообщение 
+            thanksModal.remove(); // удаляем это сообщене (спасибо или не вышло)
+            prevModalDialog.classList.add("show"); // возвращаем старое модальное окно заполнения
+            prevModalDialog.classList.remove("hide"); // убираем класс который скрывает его
+            closeModal(); // закрываем модальное окно через 4сек
+        },4000);
     }
 
 });
