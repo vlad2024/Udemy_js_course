@@ -428,13 +428,17 @@ document.addEventListener("DOMContentLoaded", () =>{
 
     // /точки
 
+    function deleteNoDigits(str){ // функция по удалению букв из строки и замены строки на числовой тип
+        return +str.replace.replace(/\D/g, "");
+    }
+
     next.addEventListener("click",  ()=>{ // когда я нажимаю кнопку вперед, оно будет сдвигать слайд
-        if(offset == (+width.slice(0,width.length - 2) * (slides.length - 1))){
+        if(offset == deleteNoDigits(width) * (slides.length - 1)){
            // сейчас у нас у width допустим 400px, нам надо это width умножить на количество слайдов, а как
            //мы умножим значение где 400px нам надо убрать px для этого слайсом вырезаем и плюсиком делаем число
             offset = 0; // это если у нас последнее число
         } else {
-            offset+= +width.slice(0,width.length - 2); // к нашему офсету добавляется ширина еще одного слайда
+            offset+= deleteNoDigits(width); // к нашему офсету добавляется ширина еще одного слайда
         }
 
         slidesField.style.transform = `translateX(-${offset}px)`; // и слайд смещается на оприделенную ширену 
@@ -458,9 +462,9 @@ document.addEventListener("DOMContentLoaded", () =>{
 
     prev.addEventListener("click",  ()=>{ // когда я нажимаю кнопку вперед, оно будет сдвигать слайд
         if(offset == 0){ // когда мы нажимаем прев и в нас первый слайд, мы смещаемся в конец
-            offset = +width.slice(0,width.length - 2) * (slides,length - 1);
+            offset = deleteNoDigits(width) * (slides,length - 1); // replace(/\D/g, "") - регулярное выраж
         } else { // а если это был не первый слайд, то отнемаем ширину слайда
-            offset-= +width.slice(0,width.length - 2); // к нашему офсету добавляется ширина еще одного слайда
+            offset-= deleteNoDigits(width); // к нашему офсету добавляется ширина еще одного слайда
         }
 
         slidesField.style.transform = `translateX(-${offset}px)`; // и слайд смещается на оприделенную ширену 
@@ -489,7 +493,7 @@ document.addEventListener("DOMContentLoaded", () =>{
             const slideTo = e.target.getAttribute("data-slide-to");
 
             slideIndex = slideTo;
-            offset = (+width.slice(0,width.length - 2) * (slideTo - 1));
+            offset = deleteNoDigits(width) * (slideTo - 1);
             slidesField.style.transform = `translateX(-${offset}px)`; // и слайд смещается на оприделенную ширену 
          //если в ccs нам нужно сместить элемент влево то надо использовать отрицательные значения, вправо-полож
 
