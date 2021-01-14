@@ -349,6 +349,7 @@ document.addEventListener("DOMContentLoaded", () =>{
     // Slider
     
     const slides = document.querySelectorAll(".offer__slide"),
+          slider = document.querySelector(".offer__slider"),
           prev = document.querySelector(".offer__slider-prev"),
           next = document.querySelector(".offer__slider-next"),
           total = document.querySelector("#total"),
@@ -378,6 +379,55 @@ document.addEventListener("DOMContentLoaded", () =>{
         slide.style.width = width;
     });
 
+    //точки
+    slider.style.position = "relative";
+
+    const indicators = document.createElement("ol"),
+          dots = []; // в этот массив будем закидывать точки
+
+    indicators.classList.add("carousel-indicators");
+
+    indicators.style.cssText = `
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 15;
+        display: flex;
+        justify-content: center;
+        margin-right: 15%;
+        margin-left: 15%;
+        list-style: none;
+    `;
+
+    slider.append(indicators); // пока что мы добавили только список
+
+    for(let i = 0; i < slides.length; i++){ // создаём точки
+        const dot = document.createElement("li");
+        dot.setAttribute("data-slide-to", i+1); // каждой точке добавляем атрибут
+        dot.style.cssText = `
+            box-sizing: content-box;
+            flex: 0 1 auto;
+            width: 30px;
+            height: 6px;
+            margin-right: 3px;
+            margin-left: 3px;
+            cursor: pointer;
+            background-color: #fff;
+            background-clip: padding-box;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            opacity: .5;
+            transition: opacity .6s ease;
+        `;
+
+        indicators.append(dot); // заапендили на страницу
+        dots.push(dot);
+
+    }
+
+    // /точки
+
     next.addEventListener("click",  ()=>{ // когда я нажимаю кнопку вперед, оно будет сдвигать слайд
         if(offset == (+width.slice(0,width.length - 2) * (slides.length - 1))){
            // сейчас у нас у width допустим 400px, нам надо это width умножить на количество слайдов, а как
@@ -401,6 +451,9 @@ document.addEventListener("DOMContentLoaded", () =>{
         }else{
             current.textContent = slideIndex;
         }
+
+        dots.forEach(dot => dot.style.opacity = "0.5");// чтобы подсвечивался текущий элемент
+        dots[slideIndex - 1].style.opacity = 1;
     });
 
     prev.addEventListener("click",  ()=>{ // когда я нажимаю кнопку вперед, оно будет сдвигать слайд
@@ -424,6 +477,31 @@ document.addEventListener("DOMContentLoaded", () =>{
         }else{
             current.textContent = slideIndex;
         }
+
+        dots.forEach(
+            dot => dot.style.opacity = "0.5"
+            ); // всем точкам прозрачность 0.5
+        dots[slideIndex - 1].style.opacity = 1; // чтобы подсвечивался текущий элемент
+    });
+
+    dots.forEach(dot => {
+        dot.addEventListener("click", (e) =>{
+            const slideTo = e.target.getAttribute("data-slide-to");
+
+            slideIndex = slideTo;
+            offset = (+width.slice(0,width.length - 2) * (slideTo - 1));
+            slidesField.style.transform = `translateX(-${offset}px)`; // и слайд смещается на оприделенную ширену 
+         //если в ccs нам нужно сместить элемент влево то надо использовать отрицательные значения, вправо-полож
+
+            dots.forEach(dot => dot.style.opacity = "0.5");// чтобы подсвечивался текущий элемент
+            dots[slideIndex - 1].style.opacity = 1;
+
+            if(slides.length < 10){ // текущий слайд
+                current.textContent = `0${slideIndex}`;
+            }else{
+                current.textContent = slideIndex;
+            }
+        });
     });
 
     // showSlides(slideIndex); // вызвали функцию чтобы изначально стоял первый слайд
