@@ -352,50 +352,122 @@ document.addEventListener("DOMContentLoaded", () =>{
           prev = document.querySelector(".offer__slider-prev"),
           next = document.querySelector(".offer__slider-next"),
           total = document.querySelector("#total"),
-          current = document.querySelector("#current");
+          current = document.querySelector("#current"),
+          slidesWrapper = document.querySelector(".offer__slider-wrapper"),
+          slidesField = document.querySelector(".offer__slider-inner"),
+          width = window.getComputedStyle(slidesWrapper).width;
           
     let slideIndex = 1;
+    let offset = 0; // переменная чттобы знать на сколько мы отступили вправо, или влево
 
-    showSlides(slideIndex); // вызвали функцию чтобы изначально стоял первый слайд
     if(slides.length < 10){ // меняется значение там где 04
         total.textContent = `0${slides.length}`;
+        current.textContent = `0${slideIndex}`;
     } else {
         total.textContent = slides.length;
+        current.textContent = slideIndex;
     }
 
-    function showSlides(n){
-        if(n > slides.length){ // провераем гранчные значения
-            slideIndex = 1;
-        }
-        if(n < 1){ // проверяем граничные значения
-            slideIndex = slides.length;
-        }
+    slidesField.style.width = 100 * slides.length + "%"; // что блок занимае 100% ширины
+    slidesField.style.display = "flex"; // сделали флексом, чтобы слайды шли в бок
+    slidesField.style.transition = "0.5s all"; // плавный переход
+    
+    slidesWrapper.style.overflow = "hidden"; // скрыли все слайды которые уходят в бок, остался только основной
 
-        slides.forEach(item=>{ // скрываем все слайды
-            item.style.display = "none";
-        });
+    slides.forEach(slide =>{ // установили ширину всем слайдам
+        slide.style.width = width;
+    });
 
-        slides[slideIndex - 1].style.display = "block"; // открыли 1вый слайд, то есть под индексом 0
-
-        if(slides.length < 10){ // изменяем чисто текущего слайда
-            current.textContent = `0${slideIndex}`;
+    next.addEventListener("click",  ()=>{ // когда я нажимаю кнопку вперед, оно будет сдвигать слайд
+        if(offset == (+width.slice(0,width.length - 2) * (slides.length - 1))){
+           // сейчас у нас у width допустим 400px, нам надо это width умножить на количество слайдов, а как
+           //мы умножим значение где 400px нам надо убрать px для этого слайсом вырезаем и плюсиком делаем число
+            offset = 0; // это если у нас последнее число
         } else {
+            offset+= +width.slice(0,width.length - 2); // к нашему офсету добавляется ширина еще одного слайда
+        }
+
+        slidesField.style.transform = `translateX(-${offset}px)`; // и слайд смещается на оприделенную ширену 
+        // если в ccs нам нужно сместить элемент влево то надо использовать отрицательные значения, вправо-полож
+
+        if(slideIndex==slides.length){
+            slideIndex = 1;
+        }else{
+            slideIndex++;
+        }
+
+        if(slides.length < 10){
+            current.textContent = `0${slideIndex}`;
+        }else{
             current.textContent = slideIndex;
         }
-
-    }
-
-    function plusSlides(n){ // функция по изменению индекса
-        showSlides(slideIndex += n);
-    }
-
-    prev.addEventListener("click", () =>{ // при клике на стрелочку назад
-        plusSlides(-1);
     });
 
-    next.addEventListener("click", () =>{ // при клике на стрелочку вперед
-        plusSlides(+1);
+    prev.addEventListener("click",  ()=>{ // когда я нажимаю кнопку вперед, оно будет сдвигать слайд
+        if(offset == 0){ // когда мы нажимаем прев и в нас первый слайд, мы смещаемся в конец
+            offset = +width.slice(0,width.length - 2) * (slides,length - 1);
+        } else { // а если это был не первый слайд, то отнемаем ширину слайда
+            offset-= +width.slice(0,width.length - 2); // к нашему офсету добавляется ширина еще одного слайда
+        }
+
+        slidesField.style.transform = `translateX(-${offset}px)`; // и слайд смещается на оприделенную ширену 
+        // если в ccs нам нужно сместить элемент влево то надо использовать отрицательные значения, вправо-полож
+
+        if(slideIndex == 1){
+            slideIndex = slides.length;
+        }else{
+            slideIndex--;
+        }
+
+        if(slides.length < 10){
+            current.textContent = `0${slideIndex}`;
+        }else{
+            current.textContent = slideIndex;
+        }
     });
+
+    // showSlides(slideIndex); // вызвали функцию чтобы изначально стоял первый слайд
+    // if(slides.length < 10){ // меняется значение там где 04
+    //     total.textContent = `0${slides.length}`;
+    // } else {
+    //     total.textContent = slides.length;
+    // }
+
+    // function showSlides(n){
+    //     if(n > slides.length){ // провераем гранчные значения
+    //         slideIndex = 1;
+    //     }
+    //     if(n < 1){ // проверяем граничные значения
+    //         slideIndex = slides.length;
+    //     }
+
+    //     slides.forEach(item=>{ // скрываем все слайды
+    //         item.style.display = "none";
+    //     });
+
+    //     slides[slideIndex - 1].style.display = "block"; // открыли 1вый слайд, то есть под индексом 0
+
+    //     if(slides.length < 10){ // изменяем чисто текущего слайда
+    //         current.textContent = `0${slideIndex}`;
+    //     } else {
+    //         current.textContent = slideIndex;
+    //     }
+
+    // }
+
+    // function plusSlides(n){ // функция по изменению индекса
+    //     showSlides(slideIndex += n);
+    // }
+
+    // prev.addEventListener("click", () =>{ // при клике на стрелочку назад
+    //     plusSlides(-1);
+    // });
+
+    // next.addEventListener("click", () =>{ // при клике на стрелочку вперед
+    //     plusSlides(+1);
+    // });
+
+
 });
 
 // API - интерфейс програмного обеспечения, или приложения(Простыми словами это набор данных и возможностей
