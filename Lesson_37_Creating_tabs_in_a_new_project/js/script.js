@@ -344,6 +344,58 @@ document.addEventListener("DOMContentLoaded", () =>{
         data.json(); // берем ответ от сервера, и превращаем в джаваскриптовый объект
     })
     .then(result => console.log(result));
+
+
+    // Slider
+    
+    const slides = document.querySelectorAll(".offer__slide"),
+          prev = document.querySelector(".offer__slider-prev"),
+          next = document.querySelector(".offer__slider-next"),
+          total = document.querySelector("#total"),
+          current = document.querySelector("#current");
+          
+    let slideIndex = 1;
+
+    showSlides(slideIndex); // вызвали функцию чтобы изначально стоял первый слайд
+    if(slides.length < 10){ // меняется значение там где 04
+        total.textContent = `0${slides.length}`;
+    } else {
+        total.textContent = slides.length;
+    }
+
+    function showSlides(n){
+        if(n > slides.length){ // провераем гранчные значения
+            slideIndex = 1;
+        }
+        if(n < 1){ // проверяем граничные значения
+            slideIndex = slides.length;
+        }
+
+        slides.forEach(item=>{ // скрываем все слайды
+            item.style.display = "none";
+        });
+
+        slides[slideIndex - 1].style.display = "block"; // открыли 1вый слайд, то есть под индексом 0
+
+        if(slides.length < 10){ // изменяем чисто текущего слайда
+            current.textContent = `0${slideIndex}`;
+        } else {
+            current.textContent = slideIndex;
+        }
+
+    }
+
+    function plusSlides(n){ // функция по изменению индекса
+        showSlides(slideIndex += n);
+    }
+
+    prev.addEventListener("click", () =>{ // при клике на стрелочку назад
+        plusSlides(-1);
+    });
+
+    next.addEventListener("click", () =>{ // при клике на стрелочку вперед
+        plusSlides(+1);
+    });
 });
 
 // API - интерфейс програмного обеспечения, или приложения(Простыми словами это набор данных и возможностей
