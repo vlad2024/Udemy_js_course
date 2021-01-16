@@ -553,7 +553,23 @@ document.addEventListener("DOMContentLoaded", () =>{
     // Calc
 
     const result = document.querySelector(".calculating__result span");
-    let sex = "female", height, weight, age, ratio = 1.375;
+    let sex, height, weight, age, ratio;
+
+    if(localStorage.getItem("sex")){ // проверяем на то что пользователь до это устанавливал эти значения
+        sex = localStorage.getItem("sex");
+    }
+    else{
+        sex = "female";
+        localStorage.setItem("sex", "famale");
+    }
+
+    if(localStorage.getItem("ratio")){ // проверяем на то что пользователь до это устанавливал эти значения
+        ratio = localStorage.getItem("ratio");
+    }
+    else{
+        ratio = 1.375;
+        localStorage.setItem("ratio", 1.375);
+    }
 
     function calcTotal(){
         if(!sex || !height || !weight || !age || !ratio){
@@ -571,18 +587,36 @@ document.addEventListener("DOMContentLoaded", () =>{
 
     calcTotal();
 
-    function getStaticInformation(parentSelector, activeClass){//передаем родителя, и изначальный эл активности
-        const elements = document.querySelectorAll(`${parentSelector} div`); // говорю что я буду получать 
-        // все div внутри родителя parentSelector
+    function initLocalSettings(selector, activeClass){ // установим класс активности на правильные элементы
+        const elements = document.querySelectorAll(selector);
+
+        elements.forEach(elem =>{
+            elem.classList.remove(activeClass);
+            if(elem.getAttribute("id") === localStorage.getItem("sex")){
+                elem.classList.add(activeClass);
+            }
+            if(elem.getAttribute("data-ratio") === localStorage.getItem("ratio")){
+                elem.classList.add(activeClass);
+            }
+        });
+    }
+    
+    initLocalSettings("#gender div", "calculating__choose-item_active");
+    initLocalSettings(".calculating__choose_big div", "calculating__choose-item_active");
+
+    function getStaticInformation(selector, activeClass){//передаем родителя, и изначальный эл активности
+        const elements = document.querySelectorAll(selector); 
 
         elements.forEach(elem =>{
             elem.addEventListener("click", (e) =>{
                 if(e.target.getAttribute("data-ratio")){ // если у элемента по которому кликнули есть атрибут 
                                                          // data-ratio то будем выполнять
                     ratio = +e.target.getAttribute("data-ratio");
+                    localStorage.setItem("ratio", +e.target.getAttribute("data-ratio"));
                 }
                 else{
                     sex = e.target.getAttribute("id");
+                    localStorage.setItem("sex", e.target.getAttribute("id")); // чтобы запоминался выбор пользов
                 }
     
                 elements.forEach(elem =>{ // убираю класс активности во всех элементах родителя
@@ -598,13 +632,23 @@ document.addEventListener("DOMContentLoaded", () =>{
         
     }
 
-    getStaticInformation("#gender", "calculating__choose-item_active");
-    getStaticInformation(".calculating__choose_big", "calculating__choose-item_active");
+    getStaticInformation("#gender div", "calculating__choose-item_active"); //#gender div" - в первых аргументах
+    // в конце стоит див ибо ведь я обращаюсь к блокам которые находятся внутри этого #gender селектора
+    getStaticInformation(".calculating__choose_big div", "calculating__choose-item_active");
 
     function getDynamicInformation(selector){
         const input = document.querySelector(selector);
 
         input.addEventListener("input", ()=>{
+
+            if(input.value.match(/\D/g)){ // если вводим букву, будет подствечивать 
+                input.style.border =  "1px solid red";
+            }
+            else{
+                input.style.border = "none";
+            }
+
+
             switch(input.getAttribute("id")){
                 case "height": 
                     height = +input.value;
