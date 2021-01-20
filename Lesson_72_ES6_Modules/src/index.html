@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+     <!--Если мы используем такую структуру подключения скриптов, а не когда используем npx webpack который
+    создаем файл в котром код с обох файлов, то нам надо использувать type="module"-->
+    <script type="module" src="./js/main.js"></script> <!-- c этого скрипта експортируем-->
+    <script type="module" src="./js/script.js"></script> <!--этим скриптом импортируем-->
+</body>
+</html>
